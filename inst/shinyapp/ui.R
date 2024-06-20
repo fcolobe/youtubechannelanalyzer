@@ -1,43 +1,54 @@
 shiny::shinyUI(
   bslib::page_navbar(
-    title = "YouTube Analytics",
+    title = shiny::tags$span(
+      shiny::tags$img(
+        src = "img/logo.svg",
+        width = "46px",
+        height = "auto",
+        alt = "YouTube logo"
+      ),
+      "Analytics"
+    ),
+    footer = p("Developed by Fonty Colo Be"),
     bg = "#303030",
     sidebar = bslib::sidebar(
-      title = "Filters",
-      shinyWidgets::pickerInput(
-        inputId = "youtuber",
-        label = "Youtuber Search:",
-        choices = LETTERS,
-        options = list(
-          `actions-box` = TRUE
+      bslib::accordion(
+        open = c("# Subscribers", "Categories"),
+        bslib::accordion_panel(
+          title = "# Subscribers",
+          shinyWidgets::sliderTextInput(
+            inputId = "nb_subscribers",
+            label = "Number of subscribers:",
+            choices = sorted_formatted_subscribers,
+            selected = c(
+              sorted_formatted_subscribers[subs_q1_index],
+              sorted_formatted_subscribers[subs_mean_index]
+            )
+          ),
+          icon = shiny::icon("users")
         ),
-        multiple = TRUE
-      ),
-      shinyWidgets::sliderTextInput(
-        inputId = "subscribers",
-        label = "Subscribers:",
-        choices = c(1, 10, 100, 500, 1000),
-        grid = TRUE
-      ),
-      shinyWidgets::pickerInput(
-        inputId = "country",
-        label = "Country:",
-        choices = c("a", "b", "c", "d"),
-        options = list(
-          style = "btn-primary"
+        bslib::accordion_panel(
+          title = "Categories",
+          shinyWidgets::pickerInput(
+            inputId = "categories",
+            label = "Channel categories:",
+            choices = NULL,
+            options = list(
+              `actions-box` = TRUE
+            ),
+            multiple = TRUE
+          ),
+          icon = icon("icons")
+        ),
+        bslib::accordion_panel(
+          title = "Countries",
+          shinyWidgets::multiInput(
+            inputId = "countries",
+            label = "Countries:",
+            choices = character(0)
+          ),
+          icon = shiny::icon("globe")
         )
-      ),
-      shiny::dateRangeInput(
-        inputId = "dates",
-        label = "Dates:",
-        start = "2001-01-01",
-        end = "2010-12-31"
-      ),
-      shinyWidgets::sliderTextInput(
-        inputId = "uploads",
-        label = "Uploads:",
-        choices = c(1, 10, 100, 500, 1000),
-        grid = TRUE
       )
     ),
     theme = bslib::bs_theme(
@@ -46,36 +57,41 @@ shiny::shinyUI(
     ),
     lang = "en",
     bslib::nav_panel(
-      title = "Overview",
-      icon = icon("magnifying-glass-chart")
-    ),
-    bslib::nav_panel(
       title = "Channel Analysis",
-      icon = icon("chart-pie")
+      icon = shiny::icon("chart-pie")
     ),
     bslib::nav_panel(
       title = "Earnings Analysis",
-      icon = icon("dollar-sign")
+      icon = shiny::icon("dollar-sign")
     ),
     bslib::nav_panel(
       title = "Geospatial Visualization",
-      icon = icon("earth-europe")
+      icon = shiny::icon("earth-europe")
     ),
     bslib::nav_panel(
       title = "Data Table",
-      icon = icon("database")
+      icon = shiny::icon("database")
     ),
     bslib::nav_panel(
       title = "About",
-      icon = icon("circle-info")
+      icon = shiny::icon("circle-info")
     ),
     bslib::nav_spacer(),
-    bslib::nav_menu(
-      title = "Links",
-      align = "right",
-      icon = icon("link"),
-      bslib::nav_item("link_shiny"),
-      bslib::nav_item("link_posit")
+    bslib::nav_item(
+      shiny::tags$a(
+        shiny::tags$span(
+          shiny::icon("code"),
+          "Source code"
+        ),
+        href = "https://github.com/fcolobe/youtubechannelanalyzer",
+        target = "_blank"
+      )
+    ),
+    bslib::nav_item(
+      bslib::input_dark_mode(
+        id = "dark_mode",
+        mode = "dark"
+      )
     )
   )
 )
