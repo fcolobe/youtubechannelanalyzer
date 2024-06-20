@@ -13,7 +13,7 @@ formatted_subscribers <- sapply(
 youtube_channel_stats <- youtube_channel_stats |>
   dplyr::mutate("formatted_subscribers" = formatted_subscribers)
 
-sorted_formatted_subscribers <- sort(formatted_subscribers)
+sorted_formatted_subscribers <- formatted_subscribers[order(as.numeric(subscribers))]
 
 countries <- unique(youtube_channel_stats[["country"]])
 countries <- countries[countries != "nan"]
