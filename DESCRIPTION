@@ -15,4 +15,8 @@ Imports:
     shiny
 Suggests: 
     bslib,
+    bsicons,
+    DT,
+    ggplot2,
+    ggiraph,
     shinyWidgets
