@@ -5,20 +5,41 @@ shiny::shinyServer(function(input, output, session) {
     }
   })
 
-  shiny::observe({
-    shiny::req(
-      input[["nb_subscribers"]],
-      youtube_channel_stats
+  filtered_categories <- shiny::reactive({
+    shiny::req(input[["nb_subscribers"]])
+
+    regex <- "\\d+(\\.\\d+)?"
+
+    min_subs_str <- stringr::str_extract(
+      string = input$nb_subscribers[1],
+      pattern = regex
+    )
+    max_subs_str <- stringr::str_extract(
+      string = input$nb_subscribers[2],
+      pattern = regex
     )
 
-    categories <- youtube_channel_stats |>
+    min_subs <- as.numeric(min_subs_str)
+    max_subs <- as.numeric(max_subs_str)
+
+    youtube_channel_stats |>
       dplyr::filter(
-        sorted_formatted_subscribers %in% input[["nb_subscribers"]] &
+        as.numeric(stringr::str_extract(
+          string = formatted_subscribers,
+          pattern = regex
+        )) >= min_subs &
+          as.numeric(stringr::str_extract(
+            string = formatted_subscribers,
+            pattern = regex
+          )) <= max_subs &
           category != "nan"
       ) |>
-      dplyr::select(dplyr::all_of("category")) |>
-      dplyr::distinct() |>
-      dplyr::pull()
+      dplyr::distinct(category)
+  })
+
+  shiny::observe({
+    categories <- filtered_categories() |>
+      dplyr::pull(category)
 
     shinyWidgets::updatePickerInput(
       inputId = "categories",
@@ -27,28 +48,25 @@ shiny::shinyServer(function(input, output, session) {
     )
   })
 
-  shiny::observe({
-    shiny::req(
-      input[["categories"]],
-      youtube_channel_stats
-    )
-
-    country_flag <- youtube_channel_stats |>
+  filtered_countries <- shiny::reactive({
+    shiny::req(input[["categories"]])
+    youtube_channel_stats |>
       dplyr::filter(
         category %in% input[["categories"]] &
           country != "nan"
       ) |>
-      dplyr::select(dplyr::all_of(c("country", "flag_path"))) |>
-      dplyr::distinct() |>
+      dplyr::distinct(country, flag_path) |>
       dplyr::arrange(country)
+  })
+
+  shiny::observe({
+    country_flag <- filtered_countries()
 
     countries <- country_flag |>
-      dplyr::select(dplyr::all_of("country")) |>
-      dplyr::pull()
+      dplyr::pull(country)
 
     flags <- country_flag |>
-      dplyr::select(dplyr::all_of("flag_path")) |>
-      dplyr::pull()
+      dplyr::pull(flag_path)
 
     choices <- stats::setNames(
       countries,
@@ -69,6 +87,30 @@ shiny::shinyServer(function(input, output, session) {
       inputId = "countries",
       choices = choices,
       selected = choices
+    )
+  })
+
+  output[["total_channels"]] <- shiny::renderUI({
+    bslib::value_box(
+      title = "Total Channels",
+      value = "12",
+      showcase = shiny::icon("display")
+    )
+  })
+
+  output[["avg_subs"]] <- shiny::renderUI({
+    bslib::value_box(
+      title = "Average Subscribers",
+      value = "12",
+      showcase = shiny::icon("users")
+    )
+  })
+
+  output[["avg_views"]] <- shiny::renderUI({
+    bslib::value_box(
+      title = "Average Views",
+      value = "12",
+      showcase = shiny::icon("eye")
     )
   })
 })
