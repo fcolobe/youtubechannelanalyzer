@@ -57,6 +57,44 @@ shiny::shinyUI(
     ),
     lang = "en",
     bslib::nav_panel(
+      title = "Overview",
+      icon = shiny::icon("magnifying-glass-chart"),
+      bslib::layout_columns(
+        col_widths = 4,
+        fill = FALSE,
+        shiny::uiOutput("total_channels"),
+        shiny::uiOutput("avg_subs"),
+        shiny::uiOutput("avg_views")
+      ),
+      bslib::layout_columns(
+        col_widths = 6,
+        bslib::card(
+          full_screen = TRUE,
+          bslib::card_header(
+            "Flight paths",
+            bslib::tooltip(
+              shiny::icon("info-circle", title = "About marker areas"),
+              "Marker areas are proportional to mean arrival delay"
+            ),
+            class = "d-flex justify-content-between align-items-center"
+          ),
+          shiny::plotOutput("plot1")
+        ),
+        bslib::card(
+          full_screen = TRUE,
+          bslib::card_header(
+            "Flight paths",
+            bslib::tooltip(
+              shiny::icon("info-circle", title = "About marker areas"),
+              "Marker areas are proportional to mean arrival delay"
+            ),
+            class = "d-flex justify-content-between align-items-center"
+          ),
+          shiny::plotOutput("plot2")
+        )
+      )
+    ),
+    bslib::nav_panel(
       title = "Channel Analysis",
       icon = shiny::icon("chart-pie")
     ),
@@ -70,7 +108,11 @@ shiny::shinyUI(
     ),
     bslib::nav_panel(
       title = "Data Table",
-      icon = shiny::icon("database")
+      icon = shiny::icon("database"),
+      bslib::card(
+        bslib::card_header("Flight data"),
+        DT::dataTableOutput("export")
+      )
     ),
     bslib::nav_panel(
       title = "About",
