@@ -21,3 +21,52 @@ format_number <- function(x) {
     return(as.character(x))
   }
 }
+
+#' Automatic Unit Format
+#'
+#' This function automatically determines the appropriate unit format for a numeric vector
+#' and returns a function that formats numbers with the correct unit (e.g., "K" for thousands,
+#' "M" for millions, "B" for billions).
+#'
+#' @param x A numeric vector to be formatted.
+#' @return A function that formats numbers with the appropriate unit.
+#' @examples
+#' y_labels <- auto_unit_format(c(1500, 2500000, 3500000000))
+#' y_labels(c(1500, 2500000, 3500000000))
+#' @export
+auto_unit_format <- function(x) {
+  max_val <- max(x, na.rm = TRUE)
+  if (max_val >= 1e9) {
+    scales::unit_format(unit = "B", scale = 1e-9)
+  } else if (max_val >= 1e6) {
+    scales::unit_format(unit = "M", scale = 1e-6)
+  } else if (max_val >= 1e3) {
+    scales::unit_format(unit = "K", scale = 1e-3)
+  } else {
+    scales::unit_format(unit = "", scale = 1)
+  }
+}
+
+#' Calculate Q1 and Mean Indices
+#'
+#' This function calculates the indices of the first quartile (Q1) and the mean of a numeric vector.
+#'
+#' @param x A numeric vector.
+#' @return A named list containing the indices of the first quartile (Q1) and the mean.
+#' @examples
+#' calculate_q1_mean_indices(c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10))
+#' @export
+calculate_q1_mean_indices <- function(x) {
+    ordered_x <- sort(x)
+    q1_val <- stats::quantile(ordered_x, 0.25)
+    mean_val <- mean(ordered_x)
+    
+    q1_index <- which.min(abs(ordered_x - q1_val))
+    mean_index <- which.min(abs(ordered_x - mean_val))
+    return(list(q1_index = q1_index, mean_index = mean_index))
+}
+
+# Example usage of the function
+# indices <- calculate_q1_mean_indices(youtube_channel_stats[["subscribers"]])
+# print(indices$q1_index)
+# print(indices$mean_index)
