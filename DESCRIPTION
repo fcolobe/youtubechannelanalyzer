@@ -18,4 +18,5 @@ Suggests:
     DT,
     ggplot2,
     plotly,
+    scales,
     shinyWidgets
