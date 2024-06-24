@@ -36,14 +36,15 @@ format_number <- function(x) {
 #' @export
 auto_unit_format <- function(x) {
   max_val <- max(x, na.rm = TRUE)
+  sep = ""
   if (max_val >= 1e9) {
-    scales::unit_format(unit = "B", scale = 1e-9)
+    scales::unit_format(unit = "B", scale = 1e-9, sep = sep)
   } else if (max_val >= 1e6) {
-    scales::unit_format(unit = "M", scale = 1e-6)
+    scales::unit_format(unit = "M", scale = 1e-6, sep = sep)
   } else if (max_val >= 1e3) {
-    scales::unit_format(unit = "K", scale = 1e-3)
+    scales::unit_format(unit = "K", scale = 1e-3, sep = sep)
   } else {
-    scales::unit_format(unit = "", scale = 1)
+    scales::unit_format(unit = "", scale = 1, sep = sep)
   }
 }
 
@@ -60,7 +61,7 @@ calculate_q1_mean_indices <- function(x) {
     ordered_x <- sort(x)
     q1_val <- stats::quantile(ordered_x, 0.25)
     mean_val <- mean(ordered_x)
-    
+
     q1_index <- which.min(abs(ordered_x - q1_val))
     mean_index <- which.min(abs(ordered_x - mean_val))
     return(list(q1_index = q1_index, mean_index = mean_index))
