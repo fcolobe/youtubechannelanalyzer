@@ -9,11 +9,29 @@ shiny::shinyUI(
       ),
       "Analytics"
     ),
-    footer = p("Developed by Fonty Colo Be"),
+    footer = shiny::tags$div(
+      style = "display: flex; flex-direction: column; align-items: center; width: 100%;",
+      shiny::tags$hr(style = "border-color: white; width: 100%;"),
+      shiny::tags$div(
+        style = "display: flex; justify-content: space-between; align-items: center; width: 100%;",
+        shiny::tags$div(
+          style = "margin-left: 10px;",
+          shiny::HTML(
+            'Made with <a href="https://rstudio.github.io/bslib/" target="_blank">{bslib}</a> and <a href="https://shiny.posit.co/" target="_blank">Shiny</a>'
+          )
+        ),
+        shiny::tags$div(
+          style = "text-align: right; margin-right: 10px;",
+          shiny::HTML(
+            'Developed by <a href="https://fcolobe.github.io/portfolio/" target="_blank">Fonty Colo Be</a>'
+          )
+        )
+      )
+    ),
     bg = "#303030",
     sidebar = bslib::sidebar(
       bslib::accordion(
-        open = c("# Subscribers", "Categories"),
+        open = c("# Subscribers", "Channel Types", "Actions"),
         bslib::accordion_panel(
           title = "# Subscribers",
           shinyWidgets::sliderTextInput(
@@ -28,10 +46,10 @@ shiny::shinyUI(
           icon = shiny::icon("users")
         ),
         bslib::accordion_panel(
-          title = "Categories",
+          title = "Channel Types",
           shinyWidgets::pickerInput(
-            inputId = "categories",
-            label = "Channel categories:",
+            inputId = "channel_types",
+            label = "Channel Types:",
             choices = NULL,
             options = list(
               `actions-box` = TRUE
@@ -48,10 +66,21 @@ shiny::shinyUI(
             choices = character(0)
           ),
           icon = shiny::icon("globe")
+        ),
+        bslib::accordion_panel(
+          title = "Actions",
+          shiny::actionButton(
+            inputId = "calculate_button",
+            label = "Calculate",
+            icon = shiny::icon("flask-vial"),
+            class = "btn btn-primary btn-block"
+          ),
+          icon = shiny::icon("play-circle")
         )
       )
     ),
     theme = bslib::bs_theme(
+      version = 5,
       bootswatch = "darkly",
       base_font = bslib::font_google("Open Sans")
     ),
@@ -71,32 +100,73 @@ shiny::shinyUI(
         bslib::card(
           full_screen = TRUE,
           bslib::card_header(
-            "Flight paths",
+            "Average Subscribers Over Time",
             bslib::tooltip(
-              shiny::icon("info-circle", title = "About marker areas"),
-              "Marker areas are proportional to mean arrival delay"
+              shiny::icon("info-circle", title = "About subscriber trends"),
+              "This chart shows the average number of subscribers over time."
             ),
             class = "d-flex justify-content-between align-items-center"
           ),
-          shiny::plotOutput("plot1")
+          plotly::plotlyOutput("plot_avg_subs")
         ),
         bslib::card(
           full_screen = TRUE,
           bslib::card_header(
-            "Flight paths",
+            "Average Video Views Over Time",
             bslib::tooltip(
-              shiny::icon("info-circle", title = "About marker areas"),
-              "Marker areas are proportional to mean arrival delay"
+              shiny::icon("info-circle", title = "About video views trends"),
+              "This chart shows the average number of video views over time."
             ),
             class = "d-flex justify-content-between align-items-center"
           ),
-          shiny::plotOutput("plot2")
+          plotly::plotlyOutput("plot_avg_views")
         )
       )
     ),
     bslib::nav_panel(
       title = "Channel Analysis",
-      icon = shiny::icon("chart-pie")
+      icon = shiny::icon("chart-pie"),
+      bslib::layout_columns(
+        col_widths = 6,
+        bslib::card(
+          full_screen = TRUE,
+          bslib::card_header(
+            "Average Subscribers Over Time",
+            bslib::tooltip(
+              shiny::icon("info-circle", title = "About subscriber trends"),
+              "This chart shows the average number of subscribers over time.",
+              placement = "right"
+            ),
+            bslib::popover(
+              shiny::icon("gear", class = "ms-auto"),
+              shinyWidgets::pickerInput("yvar", "Split by", c("sex", "species", "island")),
+              shinyWidgets::pickerInput("color", "Color by", c("species", "island", "sex"), "island"),
+              title = "Plot settings"
+            ),
+            class = "d-flex align-items-center gap-1"
+          ),
+          plotly::plotlyOutput("plot_avg_subs2")
+        ),
+        bslib::card(
+          full_screen = TRUE,
+          bslib::card_header(
+            "Average Video Views Over Time",
+            bslib::tooltip(
+              shiny::icon("info-circle", title = "About video views trends"),
+              "This chart shows the average number of video views over time.",
+              placement = "right"
+            ),
+            bslib::popover(
+              shiny::icon("gear", class = "ms-auto"),
+              shinyWidgets::pickerInput("yvar", "Split by", c("sex", "species", "island")),
+              shinyWidgets::pickerInput("color", "Color by", c("species", "island", "sex"), "island"),
+              title = "Plot settings"
+            ),
+            class = "d-flex align-items-center gap-1"
+          ),
+          plotly::plotlyOutput("plot_avg_views2")
+        )
+      )
     ),
     bslib::nav_panel(
       title = "Earnings Analysis",
@@ -110,7 +180,7 @@ shiny::shinyUI(
       title = "Data Table",
       icon = shiny::icon("database"),
       bslib::card(
-        bslib::card_header("Flight data"),
+        bslib::card_header("YouTube Channel Statistics"),
         DT::dataTableOutput("export")
       )
     ),
