@@ -2,4 +2,6 @@
 
 export(auto_unit_format)
 export(calculate_q1_mean_indices)
+export(extract_numeric_subs)
+export(filter_youtube_data)
 export(format_number)
