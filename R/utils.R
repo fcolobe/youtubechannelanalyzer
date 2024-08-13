@@ -36,7 +36,7 @@ format_number <- function(x) {
 #' @export
 auto_unit_format <- function(x) {
   max_val <- max(x, na.rm = TRUE)
-  sep = ""
+  sep <- ""
   if (max_val >= 1e9) {
     scales::unit_format(unit = "B", scale = 1e-9, sep = sep)
   } else if (max_val >= 1e6) {
@@ -58,16 +58,74 @@ auto_unit_format <- function(x) {
 #' calculate_q1_mean_indices(c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10))
 #' @export
 calculate_q1_mean_indices <- function(x) {
-    ordered_x <- sort(x)
-    q1_val <- stats::quantile(ordered_x, 0.25)
-    mean_val <- mean(ordered_x)
+  ordered_x <- sort(x)
+  q1_val <- stats::quantile(ordered_x, 0.25)
+  mean_val <- mean(ordered_x)
 
-    q1_index <- which.min(abs(ordered_x - q1_val))
-    mean_index <- which.min(abs(ordered_x - mean_val))
-    return(list(q1_index = q1_index, mean_index = mean_index))
+  q1_index <- which.min(abs(ordered_x - q1_val))
+  mean_index <- which.min(abs(ordered_x - mean_val))
+  return(list(q1_index = q1_index, mean_index = mean_index))
 }
 
 # Example usage of the function
 # indices <- calculate_q1_mean_indices(youtube_channel_stats[["subscribers"]])
 # print(indices$q1_index)
 # print(indices$mean_index)
+
+#' Extract Numeric Subscriber Count
+#'
+#' Extracts the numeric subscriber count from a formatted subscriber string.
+#'
+#' This function takes a formatted subscriber string (e.g., "1K", "1.5M") and extracts the numeric part as a numeric value.
+#'
+#' @param subscriber_str A string representing the formatted subscriber count.
+#' @return A numeric value representing the subscriber count.
+#' @export
+#' @examples
+#' extract_numeric_subs("1K") # returns 1
+#' extract_numeric_subs("1.5M") # returns 1.5
+extract_numeric_subs <- function(subscriber_str) {
+  regex <- "\\d+(\\.\\d+)?"
+  subs_str <- stringr::str_extract(string = subscriber_str, pattern = regex)
+  as.numeric(subs_str)
+}
+
+#' Filter YouTube Data
+#'
+#' Filters the YouTube channel statistics data based on the given criteria.
+#'
+#' @param youtube_data A data frame containing YouTube channel statistics.
+#' @param nb_subscribers A vector of length 2 specifying the minimum and maximum number of subscribers.
+#' @param categories A vector of categories to filter.
+#' @param countries A vector of countries to filter.
+#'
+#' @return A data frame containing the filtered YouTube channel statistics.
+#' @global formatted_subscribers channel_type country
+#' @export
+#'
+#' @examples
+#' youtube_channel_stats <- data.frame(
+#'   formatted_subscribers = c("1K", "10K", "100K", "1M"),
+#'   channel_type = c("Music", "Games", "Entertainment", "Education"),
+#'   country = c("USA", "UK", "USA", "UK")
+#' )
+#' filtered_data <- filter_youtube_data(
+#'   youtube_data = youtube_channel_stats,
+#'   nb_subscribers = c("1K", "1M"),
+#'   channel_types = c("Education", "Entertainment"),
+#'   countries = c("USA", "UK")
+#' )
+filter_youtube_data <- function(youtube_data, nb_subscribers, channel_types, countries) {
+  min_subs <- extract_numeric_subs(nb_subscribers[1])
+  max_subs <- extract_numeric_subs(nb_subscribers[2])
+
+  filtered_data <- youtube_data |>
+    dplyr::filter(
+      extract_numeric_subs(formatted_subscribers) >= min_subs &
+        extract_numeric_subs(formatted_subscribers) <= max_subs &
+        channel_type %in% channel_types &
+        country %in% countries
+    )
+
+  return(filtered_data)
+}
