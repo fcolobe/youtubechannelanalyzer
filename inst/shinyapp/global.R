@@ -16,60 +16,13 @@ youtube_channel_stats <- youtube_channel_stats |>
 sorted_formatted_subscribers <- formatted_subscribers[order(as.numeric(subscribers))]
 
 countries <- unique(youtube_channel_stats[["country"]])
-countries <- countries[countries != "nan"]
 
-flags <- c(
-  "img/flags/in.svg",
-  "img/flags/us.svg",
-  "img/flags/jp.svg",
-  "img/flags/ru.svg",
-  "img/flags/kr.svg",
-  "img/flags/gb.svg",
-  "img/flags/ca.svg",
-  "img/flags/br.svg",
-  "img/flags/ar.svg",
-  "img/flags/cl.svg",
-  "img/flags/cu.svg",
-  "img/flags/sv.svg",
-  "img/flags/pk.svg",
-  "img/flags/ph.svg",
-  "img/flags/th.svg",
-  "img/flags/co.svg",
-  "img/flags/bb.svg",
-  "img/flags/mx.svg",
-  "img/flags/ae.svg",
-  "img/flags/es.svg",
-  "img/flags/sa.svg",
-  "img/flags/id.svg",
-  "img/flags/tr.svg",
-  "img/flags/ve.svg",
-  "img/flags/kw.svg",
-  "img/flags/jo.svg",
-  "img/flags/nl.svg",
-  "img/flags/sg.svg",
-  "img/flags/au.svg",
-  "img/flags/it.svg",
-  "img/flags/de.svg",
-  "img/flags/fr.svg",
-  "img/flags/se.svg",
-  "img/flags/af.svg",
-  "img/flags/ua.svg",
-  "img/flags/lv.svg",
-  "img/flags/ch.svg",
-  "img/flags/vn.svg",
-  "img/flags/my.svg",
-  "img/flags/cn.svg",
-  "img/flags/iq.svg",
-  "img/flags/eg.svg",
-  "img/flags/ad.svg",
-  "img/flags/ec.svg",
-  "img/flags/ma.svg",
-  "img/flags/pe.svg",
-  "img/flags/bd.svg",
-  "img/flags/fi.svg",
-  "img/flags/ws.svg"
-)
+unique_countries <- youtube_channel_stats |>
+  dplyr::pull(abbreviation) |>
+  unique()
 
+unique_countries <- ifelse(unique_countries == "Unknown", "UN", unique_countries)
+flags <- paste0("img/flags/", tolower(unique_countries), ".svg")
 country_flag_map <- stats::setNames(flags, countries)
 
 youtube_channel_stats <- youtube_channel_stats |>
@@ -77,6 +30,7 @@ youtube_channel_stats <- youtube_channel_stats |>
     flag_path = dplyr::case_when(
       country == "India" ~ country_flag_map["India"],
       country == "United States" ~ country_flag_map["United States"],
+      country == "Unknown" ~ country_flag_map["Unknown"],
       country == "Japan" ~ country_flag_map["Japan"],
       country == "Russia" ~ country_flag_map["Russia"],
       country == "South Korea" ~ country_flag_map["South Korea"],
@@ -157,3 +111,26 @@ youtube_channel_stats[["created_date_combined"]] <- as.Date(
   youtube_channel_stats[["created_date_combined"]],
   format = "%Y-%m-%d"
 )
+
+init_nb_subscribers <- c("14.5M", "23M")
+init_channel_types <- c(
+  "Animals", "Autos", "Comedy", "Education", "Entertainment",
+  "Film", "Games", "Howto", "Music", "News", "Nonprofit",
+  "People", "Sports", "Tech", "Unknown"
+)
+init_countries <- c(
+  "Afghanistan", "Andorra", "Argentina", "Australia", "Brazil", "Canada",
+  "Chile", "China", "Colombia", "Ecuador", "Egypt", "France", "Germany",
+  "India", "Indonesia", "Iraq", "Japan", "Jordan", "Latvia", "Malaysia",
+  "Mexico", "Morocco", "Philippines", "Russia", "Saudi Arabia",
+  "Singapore", "South Korea", "Spain", "Sweden", "Switzerland",
+  "Thailand", "Turkey", "Ukraine", "United Arab Emirates",
+  "United Kingdom", "United States", "Unknown", "Vietnam"
+)
+
+global_theme <- ggplot2::theme(
+  plot.title = ggplot2::element_text(hjust = 0.5, size = 16, face = "bold"),
+  axis.title = ggplot2::element_text(size = 14),
+  axis.text = ggplot2::element_text(size = 12)
+)
+ggplot2::theme_set(global_theme)
