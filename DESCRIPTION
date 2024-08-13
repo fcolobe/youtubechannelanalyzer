@@ -7,16 +7,22 @@ Authors@R:
 Description: An application for analyzing YouTube channel statistics.
 License: MIT + file LICENSE
 Encoding: UTF-8
-Roxygen: list(markdown = TRUE)
+Roxygen: list(markdown = TRUE, roclets = c("collate", "namespace", "rd",
+    "roxyglobals::global_roclet"))
 RoxygenNote: 7.3.1
 Depends: R (>= 4.0)
 LazyData: true
 Imports:
-    shiny
+    dplyr,
+    shiny,
+    stringr
 Suggests: 
     bslib,
     DT,
     ggplot2,
     plotly,
+    roxyglobals,
     scales,
     shinyWidgets
+Config/roxyglobals/filename: generated-globals.R
+Config/roxyglobals/unique: TRUE
